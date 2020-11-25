@@ -1,2 +1,3 @@
 # shopping-cart
-A simple API for a shopping cart application
+An API for a simple shopping cart application
+
