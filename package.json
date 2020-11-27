@@ -12,12 +12,16 @@
   "author": "Anja Thiart",
   "dependencies": {
     "@koa/router": "^8.0.0",
+    "bcrypt": "^5.0.0",
+    "chai": "^4.2.0",
+    "jsonwebtoken": "^8.5.1",
     "koa": "^2.7.0",
+    "koa-body": "^4.2.0",
+    "mocha": "^8.0.1",
     "mysql2": "^1.6.5",
     "pino": "^6.7.0",
     "pino-pretty": "^4.3.0",
-    "chai": "^4.2.0",
-    "mocha": "^8.0.1",
+    "sql": "^0.78.0",
     "supertest": "^4.0.2"
   },
   "devDependencies": {

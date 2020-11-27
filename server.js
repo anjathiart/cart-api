@@ -1,16 +1,16 @@
 // npm modules
 const Koa = require('koa');
 const KoaRouter = require('@koa/router');
-// const bodyParser = require('koa-bodyparser');
+const KoaBody = require('koa-body');
 const Mysql = require('mysql2/promise');
 const pino = require('pino');
 
 // Set up pretty pino logging
 const log = pino({
 	prettyPrint: {
-		colorize: true, // --colorize
-		translateTime: "SYS:yyyy-mm-dd HH:MM:ss", // --translateTime
-		ignore: 'pid,hostname' // --ignore,
+		colorize: true,
+		translateTime: "SYS:yyyy-mm-dd HH:MM:ss",
+		ignore: 'pid,hostname',
 	}
 })
 
@@ -46,6 +46,8 @@ app.db = Mysql.createPool({
 	queueLimit: 0,
 });
 
+app.controls = require('./controls/index')(app);
+app.models = require('./models/index')(app);
 
 // Server startup message
 app.log('SYS', `ENV : ${app.env}`);
@@ -75,12 +77,23 @@ koaApp.use(async (ctx, next) => {
 
 });
 
+// middleware NPM modules load
+koaApp.use(KoaBody({
+	formLimit: '48mb',
+	jsonLimit: '48mb',
+	textLimit: '48mb',
+	multipart: true,
+}));
+
 koaApp.use(koaRouter.routes()).use(koaRouter.allowedMethods());
 
 // Route to check that service is responsive
-koaRouter.get(`/api/v1/ping`, async (ctx) => {
+koaRouter.get(`/ping`, async (ctx) => {
 	ctx.status=200;
 })
+
+// load API routes
+require('./routes/index')(app, koaRouter);
 
 // Catch any unmatched urls
 koaApp.use((ctx) => {
