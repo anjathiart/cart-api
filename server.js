@@ -1,6 +1,7 @@
 // npm modules
 const Koa = require('koa');
 const KoaRouter = require('@koa/router');
+// const bodyParser = require('koa-bodyparser');
 const Mysql = require('mysql2/promise');
 const pino = require('pino');
 
@@ -80,6 +81,11 @@ koaApp.use(koaRouter.routes()).use(koaRouter.allowedMethods());
 koaRouter.get(`/api/v1/ping`, async (ctx) => {
 	ctx.status=200;
 })
+
+// Catch any unmatched urls
+koaApp.use((ctx) => {
+	ctx.status = 405;
+});
 
 // start server
 app.log('API', `Listening on *:${app.config.port}`);

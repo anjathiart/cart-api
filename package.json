@@ -15,7 +15,10 @@
     "koa": "^2.7.0",
     "mysql2": "^1.6.5",
     "pino": "^6.7.0",
-    "pino-pretty": "^4.3.0"
+    "pino-pretty": "^4.3.0",
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1",
+    "supertest": "^4.0.2"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
