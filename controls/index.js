@@ -1,5 +1,5 @@
 module.exports = (app) => {
 	const controls = {};
-	controls.register = require('./register')(app);
+	controls.access = require('./access')(app);
 	return controls;
 }

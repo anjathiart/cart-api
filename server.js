@@ -92,6 +92,10 @@ koaRouter.get(`/ping`, async (ctx) => {
 	ctx.status=200;
 })
 
+koaRouter.get(`/api/v1/ping`, async (ctx) => {
+	ctx.status=200;
+})
+
 // load API routes
 require('./routes/index')(app, koaRouter);
 

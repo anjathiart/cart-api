@@ -1,6 +1,5 @@
-
 module.exports = (app, koaRouter) => {
-	koaRouter.post('/api/v1/register', async (ctx, next) => {
+	koaRouter.post('/api/v1/access/register', async (ctx, next) => {
 		await app.check(ctx, next, {
 			description: 'Register a new user',
 			body: {
@@ -12,9 +11,8 @@ module.exports = (app, koaRouter) => {
 		});
 
 	}, async (ctx) => {
-		const result = await app.controls.register.register(ctx.request.body);
+		const result = await app.controls.access.register(ctx.request.body);
 		if (result !== null && result > 0) ctx.body = { success: true, userIndex: result };
 		ctx.status = 200;
 	});
-
 }

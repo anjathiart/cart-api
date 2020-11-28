@@ -9,6 +9,6 @@ module.exports = (app, koaRouter) => {
 	};
 
 	// include all route files
-	require('./register')(app, koaRouter);
+	require('./access')(app, koaRouter);
 
 }
