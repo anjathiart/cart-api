@@ -40,7 +40,7 @@ module.exports = (app, api) => {
 		})
 
 		describe('Register user with missing body parameters', () => {
-			it('Force Error 404', (done) => {
+			it('Force Error 400', (done) => {
 				api.post('/api/v1/access/register')
 					.set('Accept', 'application/json')
 					.send({
@@ -48,14 +48,14 @@ module.exports = (app, api) => {
 						userPass,
 					})
 					.end((err, res) => {
-						expect(res.status).equal(404)
+						expect(res.status).equal(400)
 						done();
 					})
 			})
 		})
 
 		describe('Register user with invalid email', () => {
-			it('Force Error: 404', (done) => {
+			it('Force Error: 400', (done) => {
 				api.post('/api/v1/access/register')
 					.set('Accept', 'application/json')
 					.send({
@@ -64,7 +64,7 @@ module.exports = (app, api) => {
 						userPass,
 					})
 					.end((err, res) => {
-						expect(res.status).equal(404)
+						expect(res.status).equal(400)
 						done();
 					})
 			})

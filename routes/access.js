@@ -11,7 +11,9 @@ module.exports = (app, koaRouter) => {
 		});
 
 	}, async (ctx) => {
-		const result = await app.controls.access.register(ctx.request.body);
+		console.log('trying to go to controls')
+		console.log(ctx.validInput)
+		const result = await app.controls.access.register(ctx.validInput);
 		if (result !== null && result > 0) ctx.body = { success: true, userIndex: result };
 		ctx.status = 200;
 	});
