@@ -8,8 +8,6 @@ app.name = 'CART API TESTS';
 app.env = process.env.NODE_ENV || 'development';
 app.config = require('../cart-api.config')[app.env];
 
-app.testUser = {
-};
 
 console.log(`NODE_ENV: ${app.env}`);
 console.log(app.config.url);
@@ -36,5 +34,5 @@ describe('Ping the server', () => {
 	});
 });
 
-// require('./test-specs/auth.js')(app, api);
+require('./test-specs/access.js')(app, api);
 
