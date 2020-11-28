@@ -4,7 +4,32 @@ const Joi = require('joi');
 
 module.exports = (app, koaRouter) => {
 
+	koaRouter.use('/api/', async (ctx, next) => {
+		// authorize user if scope is not public
+		let accessToken = '';
+		if (ctx.headers.authorization) {
+			accessToken = ctx.headers.authorization.substr(7);
+		} else if (ctx.query.accessToken) {
+			accessToken = ctx.query.accessToken;
+		}
+
+		// retrieve session if exists
+		ctx.session = await app.controls.access.authorize(accessToken);
+		if (ctx.session && ctx.session.scope) {
+			await next();
+		} else {
+			app.log('ERR', 'Scope does not exist');
+			ctx.status = 403;
+		}
+	});
+
+
 	app.check = async (ctx, next, inputDefinitions) => {
+
+		if (!inputDefinitions.scope.includes(ctx.session.scope)) {
+			app.log('ERR', 'Scope does not allow access')
+			ctx.status = 403;
+		}
 
 		// input validation
 		let missingSchema = false;
@@ -52,5 +77,6 @@ module.exports = (app, koaRouter) => {
 
 	// include all route files
 	require('./access')(app, koaRouter);
+	require('./cart')(app, koaRouter);
 
 }

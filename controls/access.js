@@ -49,7 +49,37 @@ module.exports = (app) => {
 				}
 			}
 			return null;
-		}
+		},
+
+
+		async authorize(accessToken) {
+			app.log('CHECKING AUTHORISATION');
+
+			const session = await app.models.sessions.select(accessToken);
+			if (session.sessionIndex) {
+				// check that the session has not expired
+				if (Math.round(Date.now() / 1000) > session.sessionExpires) {
+					return null;
+				}
+
+				return {
+					scope: 'user',
+					userIndex: 0,
+					userPriv: session.userPriv,
+					userEmail: session.userEmail,
+					sessionIndex: session.sessionIndex,
+					accessToken,
+				}
+			}
+			return {
+				scope: 'public',
+				userIndex: 0,
+				userPriv: 100,
+				userEmail: '',
+				sessionIndex: 0,
+				accessToken,
+			};
+		},
 	}
 	return control;
 }

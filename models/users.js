@@ -17,6 +17,19 @@ module.exports = (app, schema) => {
 			return (rows[0].length === 1 ? rows[0][0] : {});
 			
 		},
+		async select(userIndex) {
+			// TODO: log something useful
+			let query = schema.users.select(schema.users.star()).from(schema.users);
+			if (userIndex !== null) {
+				query = query.where((schema.users.userIndex).equals(userIndex)).toQuery();
+			} else {
+				return {};
+			}
+			
+			const rows = await app.db.query(query.text, query.values);
+			return (rows[0].length === 1 ? rows[0][0] : {});
+			
+		},
 		async insert(fields) {
 			fields.userCreated = Math.floor(new Date() / 1000);
 			const query = schema.users.insert(fields).toQuery();
