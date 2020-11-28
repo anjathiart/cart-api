@@ -1,6 +1,5 @@
 
 const validate = require('../validate/');
-const Joi = require('joi');
 
 module.exports = (app, koaRouter) => {
 
@@ -9,8 +8,6 @@ module.exports = (app, koaRouter) => {
 		let accessToken = '';
 		if (ctx.headers.authorization) {
 			accessToken = ctx.headers.authorization.substr(7);
-		} else if (ctx.query.accessToken) {
-			accessToken = ctx.query.accessToken;
 		}
 
 		// retrieve session if exists

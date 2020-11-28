@@ -1,8 +1,15 @@
 /* eslint-disable */
 const Joi = require('joi');
 
+
 module.exports = Joi.object({
-	userIndex: Joi.number().integer().min(0).optional(),
+	userIndex: Joi.number().integer().min(0).error(errors => {
+		if (errors.length > 0) {
+			error = new Error;
+			error.msg = 'userIndex must be a positive integer';
+			throw error;
+		}
+	}),
 	userFullname: Joi.string().trim().min(3).max(64).error(errors => {
 		if (errors.length > 0) {
 			error = new Error;
@@ -24,5 +31,12 @@ module.exports = Joi.object({
 			throw error;
 		}
 	}),
-	sessionIndex: Joi.number().integer().min(0).optional(),
+	sessionIndex: Joi.number().integer().min(0).optional().error(errors => {
+		if (errors.length > 0) {
+			error = new Error;
+			error.msg = 'sessionIndex must be a positive integer';
+			throw error;
+		}
+	}),
 });
+

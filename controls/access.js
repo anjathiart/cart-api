@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
+const Joi = require('joi');
 
 
 module.exports = (app) => {
@@ -53,22 +54,24 @@ module.exports = (app) => {
 
 
 		async authorize(accessToken) {
-			app.log('CHECKING AUTHORISATION');
+			app.log('API', 'CHECKING AUTHORISATION');
 
-			const session = await app.models.sessions.select(accessToken);
-			if (session.sessionIndex) {
-				// check that the session has not expired
-				if (Math.round(Date.now() / 1000) > session.sessionExpires) {
-					return null;
-				}
-
-				return {
-					scope: 'user',
-					userIndex: 0,
-					userPriv: session.userPriv,
-					userEmail: session.userEmail,
-					sessionIndex: session.sessionIndex,
-					accessToken,
+			// validate accessToken
+			let validAccessToken = '';
+			const { error, value } = Joi.string().trim().token().length(64).validate(accessToken);
+			
+			if (value) {
+				validAccessToken = value;
+				const session = await app.models.sessions.select(validAccessToken);
+				if (session.sessionIndex && Math.round(Date.now() / 1000) < session.sessionExpires) {
+					return {
+						scope: 'user',
+						userIndex: 0,
+						userPriv: session.userPriv,
+						userEmail: session.userEmail,
+						sessionIndex: session.sessionIndex,
+						accessToken,
+					}
 				}
 			}
 			return {
