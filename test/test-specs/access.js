@@ -17,6 +17,7 @@ module.exports = (app, api) => {
 						userPass,
 					})
 					.end((err, res) => {
+						app.config.testUser.userIndex = res.body.userIndex;
 						expect(res.status).equal(200)
 						done();
 					})
@@ -69,5 +70,37 @@ module.exports = (app, api) => {
 					})
 			})
 		})
+
+		describe('Authenticate / Login user', () => {
+			it('200', (done) => {
+				api.post('/api/v1/access/login')
+					.set('Accept', 'application/json')
+					.send({
+						userEmail,
+						userPass,
+					})
+					.end((err, res) => {
+						app.config.testUser.accesstoken = res.body.accessToken;
+						expect(res.status).equal(200)
+						done();
+					})
+			})
+		})
+
+		describe('Authenticate / Login user with incorrect password', () => {
+			it('403', (done) => {
+				api.post('/api/v1/access/login')
+					.set('Accept', 'application/json')
+					.send({
+						userEmail,
+						userPass: `${userPass}_bad`,
+					})
+					.end((err, res) => {
+						expect(res.status).equal(403)
+						done();
+					})
+			})
+		})
+
 	})
 }

@@ -30,6 +30,11 @@ module.exports = (app, koaRouter) => {
 		if (result !== null && result.sessionIndex >= 0 && result.accessToken) {
 			ctx.status = 200;
 			ctx.body = result;
+		} else if( result !== null && result.errors && result.errors.length > 0) {
+			ctx.status = 400;
+			ctx.body = {
+				errors: result.errors,
+			}
 		} else {
 			ctx.status = 403;
 		}

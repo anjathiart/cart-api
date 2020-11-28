@@ -46,7 +46,9 @@ module.exports = (app) => {
 						}
 					}
 				} else {
-					// app.throw(400, 'Incorrect email password');
+					return {
+						errors: ['Incorrect email or password']
+					}
 				}
 			}
 			return null;
@@ -54,7 +56,7 @@ module.exports = (app) => {
 
 
 		async authorize(accessToken) {
-			app.log('API', 'CHECKING AUTHORISATION');
+			app.log('AUTH', 'Determine authorized scope');
 
 			// validate accessToken
 			let validAccessToken = '';

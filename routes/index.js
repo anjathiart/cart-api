@@ -11,8 +11,10 @@ module.exports = (app, koaRouter) => {
 		}
 
 		// retrieve session if exists
-		ctx.session = await app.controls.access.authorize(accessToken);
-		if (ctx.session && ctx.session.scope) {
+		const result = await app.controls.access.authorize(accessToken);
+
+		if (result.hasOwnProperty('sessionIndex') && result.scope) {
+			ctx.session = result;
 			await next();
 		} else {
 			app.log('ERR', 'Scope does not exist');
@@ -22,7 +24,6 @@ module.exports = (app, koaRouter) => {
 
 
 	app.check = async (ctx, next, inputDefinitions) => {
-
 		if (!inputDefinitions.scope.includes(ctx.session.scope)) {
 			app.log('ERR', 'Scope does not allow access')
 			ctx.status = 403;

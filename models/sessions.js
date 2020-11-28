@@ -25,9 +25,7 @@ module.exports = (app, schema) => {
 
 			query = query.toQuery();
 
-			
 			const rows = await app.db.query(query.text, query.values);
-
 			if (rows[0].length === 1) {
 				return {
 					sessionIndex: rows[0][0].sessionIndex,
