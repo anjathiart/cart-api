@@ -7,19 +7,24 @@ module.exports = (app, koaRouter) => {
 				pageLength: { default: 10 },
 				search: { default: '' },
 				order: { default: '' },
-				filter: { default: '' },
+				category: { default: '' },
+				priceFrom: { default: '' },
+				priceTo: { default: '' },
+				inStock: { default: '' },
 			},
-			scope: ['user'],
+			scope: ['public'],
 		});
 	}, async (ctx) => {
-		if (ctx.session.userPriv === 0) {
+		// TODO: can add a userType flag from the ctx.session object so that the control knows what data should be returned
+		const result = await app.controls.products.fetch(ctx.validInput);
+		if (result) {
 			ctx.status = 200;
-			ctx.body = {
-				msg: 'TODO -> retreive store products'
-			}
+			ctx.body = result;
 		} else {
-			ctx.status = 403;
+			ctx.status = 404;
+			ctx.body = {
+				errors: ['No products were found for this query'],
+			};
 		}
-		
 	});
 }

@@ -58,11 +58,27 @@ module.exports = Joi.object({
 		error.msg = 'order string is invalid';
 		throw error;
 	}),
-	filter: Joi.string().trim().allow('').optional().error(errors => {
+	category: Joi.number().integer().min(0).allow('').optional().error(errors => {
 		error = new Error;
-		error.msg = 'filter string is invalid';
+		error.msg = 'category must be a positive integer';
 		throw error;
-	})
+	}),
+	priceFrom: Joi.number().min(0).allow('').optional().error(errors => {
+		error = new Error;
+		error.msg = 'priceFrom must be a positive number';
+		throw error;
+	}),
+	priceTo: Joi.number().min(1).allow('').optional().error(errors => {
+		error = new Error;
+		error.msg = 'priceTo be a number greater than 1';
+		throw error;
+	}),
+	inStock: Joi.boolean().allow('').optional().error(errors => {
+		error = new Error;
+		error.msg = 'inStock must either a valid boolean (true / false)';
+		throw error;
+	}),
+
 
 });
 

@@ -28,10 +28,37 @@ module.exports = (app) => {
 				'sessionExpires',
 				'accessToken',
 			]
-		})
+		}),
+		products: sql.define({
+			schema: 'store-admin',
+			name: 'products',
+			columns: [
+				'productIndex',
+				'productSKU',
+				'productTitle',
+				'productDescription',
+				'productImageURL',
+				'categoryIndex',
+				'productCurrency',
+				'productPrice',
+				'productStockLevel',
+				'productUpdated',
+				'productHasExpiryDate',
+				'productExpiryDate',
+			]
+		}),
+		categories: sql.define({
+			schema: 'store-admin',
+			name: 'categories',
+			columns: [
+				'categoryIndex',
+				'categoryName',
+			]
+		}),
 	}
 
 	models.users = require('./users')(app, schema);
 	models.sessions = require('./sessions')(app, schema);
+	models.products = require('./products')(app, schema);
 	return models;
 };
