@@ -7,7 +7,7 @@ module.exports = (app) => {
 	const schema = {
 		users: sql.define({
 			schema: 'store-admin',
-			name: 'user',
+			name: 'users',
 			columns: [
 				'userIndex',
 				'userPriv',
@@ -20,7 +20,7 @@ module.exports = (app) => {
 		}),
 		sessions: sql.define({
 			schema: 'store-admin',
-			name: 'session',
+			name: 'sessions',
 			columns: [
 				'sessionIndex',
 				'userIndex',
