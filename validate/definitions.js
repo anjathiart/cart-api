@@ -38,5 +38,31 @@ module.exports = Joi.object({
 			throw error;
 		}
 	}),
+	page: Joi.number().integer().min(1).optional().error(errors => {
+		error = new Error;
+		error.msg = 'page must be at least one character';
+		throw error;
+	}),
+	pageLength: Joi.number().integer().min(1).max(1000).optional().error(errors => {
+		error = new Error;
+		error.msg = 'pageLength must be an integer between 1 and 1000';
+		throw error;
+	}),
+	search: Joi.string().trim().allow('').optional().error(errors => {
+		error = new Error;
+		error.msg = 'search string is invalid';
+		throw error;
+	}),
+	order: Joi.string().trim().allow('').optional().error(errors => {
+		error = new Error;
+		error.msg = 'order string is invalid';
+		throw error;
+	}),
+	filter: Joi.string().trim().allow('').optional().error(errors => {
+		error = new Error;
+		error.msg = 'filter string is invalid';
+		throw error;
+	})
+
 });
 
