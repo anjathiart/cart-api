@@ -16,7 +16,7 @@ module.exports = (app, koaRouter) => {
 		});
 	}, async (ctx) => {
 		// TODO: can add a userType flag from the ctx.session object so that the control knows what data should be returned
-		const result = await app.controls.products.fetch(ctx.validInput);
+		const result = await app.controls.products.fetch(ctx.validInput, ctx.session.userType);
 		if (result) {
 			ctx.status = 200;
 			ctx.body = result;
