@@ -2,7 +2,7 @@ let fs = require('fs');
 let parsedJson = JSON.parse(fs.readFileSync('fakestoreapi.json','utf8'));
 
 let data = [];
-for (let i = 0; i < 10; i += 1) {
+for (let i = 0; i < parsedJson.length; i += 1) {
 	data.push(parsedJson[i])
 }
 
