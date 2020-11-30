@@ -8,9 +8,13 @@ module.exports = (app) => {
 			let result = [];
 			if (userType !== 'admin') {
 				result = products.map(product => {
-					const { productStockLevel, productHasExpiryDate, productExpiryDate, productUpdated, ...filteredProduct } = product;
-					filteredProduct.productPrice = parseFloat(filteredProduct.productPrice);
-					return filteredProduct;
+					product.productPrice = `${product.productPrice} ${product.productCurrency}`;
+					return {
+						productIndex,
+						productTitle,
+						productPrice,
+						categoryName
+					} = product;
 				});
 			} else {
 				result = products.map(product => {
