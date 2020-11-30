@@ -50,7 +50,6 @@ module.exports = (app, schema) => {
 
 			// action pagination
 			query = query.limit(limit).offset((page * limit) - limit).toQuery();
-			console.log(query.text)
 			const rows = await app.db.query(query.text, query.values);
 			return rows[0].length > 0 ? rows[0] : [];
 
