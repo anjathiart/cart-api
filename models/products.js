@@ -2,7 +2,8 @@ const sql = require('sql');
 
 module.exports = (app, schema) => {
 	const model = {
-		async fetch(page, limit, search, order, priceFrom, priceTo, inStock) {
+		async fetch(page, limit, search, order, category, priceFrom, priceTo, inStock) {
+
 			let query = schema.products
 				.select(
 					schema.products.star(),
@@ -11,9 +12,21 @@ module.exports = (app, schema) => {
 				.from(schema.products.join(schema.categories).on(schema.categories.categoryIndex.equals(schema.products.categoryIndex)));
 
 
-			// action filter --> ['IN_STOCK', ...]
+			// filter according to inStock filter param
 			if (inStock === true) {
 				query = query.where(schema.products.productStockLevel.gt(0));
+			} else if (inStock === false) {
+				query = query.where(schema.products.productStockLevel.equals(0));
+			}
+
+			// filter according to price range
+			if (priceFrom !== '' && priceTo !== '' && priceFrom < priceTo) {
+				query = query.where(schema.products.productPrice.gte(parseFloat(priceFrom))
+					.and(schema.products.productPrice.lte(priceTo)))
+			} else if (priceFrom !== '' && priceTo === '') {
+				query = query.where(schema.products.productPrice.gte(parseFloat(priceFrom)))
+			} else if (priceFrom === '' && priceTo !== '') {
+				query = query.where(schema.products.productPrice.lte(parseFloat(priceTo)))
 			}
 
 			// action search --> search description, title, and category
@@ -48,12 +61,12 @@ module.exports = (app, schema) => {
 
 			// filter according to price range
 			if (priceFrom !== '' && priceTo !== '' && priceFrom < priceTo) {
-				query = query.where(schema.products.productPrice.gte(priceFrom))
-					.and(schema.products.productPrice.ste(priceTo))
+				query = query.where(schema.products.productPrice.gte(parseFloat(priceFrom))
+					.and(schema.products.productPrice.lte(priceTo)))
 			} else if (priceFrom !== '' && priceTo === '') {
-				query = query.where(schema.products.productPrice.gte(priceFrom))
+				query = query.where(schema.products.productPrice.gte(parseFloat(priceFrom)))
 			} else if (priceFrom === '' && priceTo !== '') {
-				query = query.where(schema.products.productPrice.lte(priceTo))
+				query = query.where(schema.products.productPrice.lte(parseFloat(priceTo)))
 			}
 
 			// action search --> search description, title, and category
