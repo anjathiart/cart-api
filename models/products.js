@@ -1,6 +1,8 @@
 const sql = require('sql');
 
 module.exports = (app, schema) => {
+
+	// helper function to build the matching intermediate query conditions for fetching products
 	const buildFetchQueryFurther = (query, search, priceFrom, priceTo, inStock) => {
 		// filter according to inStock filter param
 			if (inStock === true) {
@@ -27,9 +29,7 @@ module.exports = (app, schema) => {
 			}
 
 			return query;
-
-	}
-
+	};
 
 	const model = {
 		async fetch(page, limit, search, order, category, priceFrom, priceTo, inStock) {
@@ -41,7 +41,7 @@ module.exports = (app, schema) => {
 				)
 				.from(schema.products.join(schema.categories).on(schema.categories.categoryIndex.equals(schema.products.categoryIndex)));
 
-			query = buildFetchQueryFurther(query, page, limit, search, order, category, priceFrom, priceTo, inStock)
+			query = buildFetchQueryFurther(query, page, limit, search, order, category, priceFrom, priceTo, inStock);
 
 			// action pagination
 			query = query.limit(limit).offset((page * limit) - limit).toQuery();
@@ -52,7 +52,6 @@ module.exports = (app, schema) => {
 		},
 
 		async fetchProductIndexArray(search, priceFrom, priceTo, inStock) {
-
 			let query = schema.products
 				.select(
 					schema.products.star(),
@@ -60,13 +59,12 @@ module.exports = (app, schema) => {
 				)
 				.from(schema.products.join(schema.categories).on(schema.categories.categoryIndex.equals(schema.products.categoryIndex)));
 
-			query = buildFetchQueryFurther(query, search, priceFrom, priceTo, inStock)
+			query = buildFetchQueryFurther(query, search, priceFrom, priceTo, inStock);
 			query = query.toQuery();
 
 			const rows = await app.db.query(query.text, query.values);
 			return rows[0].length > 0 ? rows[0] : [];
 		},
-
 
 	}
 	return model;
