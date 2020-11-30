@@ -36,7 +36,12 @@ module.exports = (app, schema) => {
 			const rows = await app.db.query(query.text, query.values);
 			return rows[0].insertId > 0 ? rows[0].insertId : null;
 
-		}
+		},
+		async clearTestUser(userEmail) {
+			const query = schema.users.delete().where(schema.users.userEmail.equals(userEmail)).limit(1).toQuery();
+			const rows = await app.db.query(query.text, query.values);
+			return rows[0].affectedRows > 0;
+		},
 	}
 	return model;
 }

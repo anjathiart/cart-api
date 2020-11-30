@@ -52,5 +52,14 @@ module.exports = (app, koaRouter) => {
 	}, async (ctx) => {
 		
 
-	})
+	});
+
+	// test route to clear test user for testing
+	// NOTE: move this to a different module
+	koaRouter.post('/api/v1/access/clearTestUser', async (ctx, next) => {
+		if (app.env === 'development') {
+			const result = await app.models.users.clearTestUser(ctx.request.body.userEmail);
+			ctx.status = 200;
+		}
+	});
 }

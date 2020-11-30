@@ -10,14 +10,19 @@ module.exports = (app, koaRouter) => {
 			scope: ['user']
 		});
 	}, async (ctx) => {
-		const result = await app.controls.carts.addProducts(ctx.validInput, ctx.session.userIndex)
-		if (result.hasOwnProperty('errors')) {
-			ctx.status = result.status ? result.status : 400;
-			ctx.body = {
-				errors: result.errors,
+		if (ctx.session.scope === 'user') {
+			const result = await app.controls.carts.addProducts(ctx.validInput, ctx.session.userIndex)
+			if (result.hasOwnProperty('errors')) {
+				ctx.status = result.status ? result.status : 400;
+				ctx.body = {
+					errors: result.errors,
+				}
+			} else {
+				ctx.status = 200;
 			}
 		} else {
-			ctx.status = 200;
+			ctx.status = 403;
 		}
+		
 	})
 }

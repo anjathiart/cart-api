@@ -6,72 +6,9 @@ const productA = {
 }
 
 module.exports = (app, api) => {
-	const { accessToken } = app.config.testUser;
-	console.log({accessToken})
-
+	let accessToken = '';
+	const { userEmail, userPass } = app.config.testUser
 	describe('User interaction with open cart', () => {
-
-		describe('Add an item to the cart with unknown quantity', () => {
-			it('200', (done) => {
-				api.post('/api/v1/cart/add')
-					.set('Accept', 'application/json')
-					.set('Bearer', accessToken)
-					.send({
-						productIndex: productA.productIndex,
-					})
-					.end((err, res) => {
-						expect(res.status).equal(200)
-						done();
-					})
-			})
-		})
-
-		/*describe('Register user where the user already exists', () => {
-			it('Force Error 400', (done) => {
-				api.post('/api/v1/access/register')
-					.set('Accept', 'application/json')
-					.send({
-						userFullname,
-						userEmail,
-						userPass,
-					})
-					.end((err, res) => {
-						expect(res.status).equal(400)
-						done();
-					})
-			})
-		})
-
-		describe('Register user with missing body parameters', () => {
-			it('Force Error 400', (done) => {
-				api.post('/api/v1/access/register')
-					.set('Accept', 'application/json')
-					.send({
-						userFullname,
-						userPass,
-					})
-					.end((err, res) => {
-						expect(res.status).equal(400)
-						done();
-					})
-			})
-		})
-
-		describe('Register user with invalid email', () => {
-			it('Force Error: 400', (done) => {
-				api.post('/api/v1/access/register')
-					.set('Accept', 'application/json')
-					.send({
-						userFullname,
-						userEmail: userEmail.replace('@', ''),
-						userPass,
-					})
-					.end((err, res) => {
-						expect(res.status).equal(400)
-						done();
-					})
-			})
-		})
 
 		describe('Authenticate / Login user', () => {
 			it('200', (done) => {
@@ -82,27 +19,91 @@ module.exports = (app, api) => {
 						userPass,
 					})
 					.end((err, res) => {
-						app.config.testUser.accessToken = res.body.accessToken;
+						accessToken = res.body.accessToken;
+						console.log(accessToken)
 						expect(res.status).equal(200)
 						done();
 					})
 			})
 		})
 
-		describe('Authenticate / Login user with incorrect password', () => {
+		describe('Add an item to the cart with unknown quantity', () => {
+			it('200', (done) => {
+				api.post('/api/v1/cart/add')
+					.set('Accept', 'application/json')
+					.set('Authorization', `bearer ${accessToken}`)
+					.send({
+						productIndex: productA.productIndex,
+					})
+					.end((err, res) => {
+						expect(res.status).equal(200)
+						done();
+					})
+			})
+		})
+
+		describe('Add an item to the cart with too large a quantity', () => {
+			it('400', (done) => {
+				api.post('/api/v1/cart/add')
+					.set('Accept', 'application/json')
+					.set('Authorization', `bearer ${accessToken}`)
+					.send({
+						productIndex: productA.productIndex,
+						quantity: 1000000
+					})
+					.end((err, res) => {
+						expect(res.status).equal(400)
+						done();
+					})
+			})
+		})
+
+		describe('Add an item to the cart for unauthorized user', () => {
 			it('403', (done) => {
-				api.post('/api/v1/access/login')
+				api.post('/api/v1/cart/add')
 					.set('Accept', 'application/json')
 					.send({
-						userEmail,
-						userPass: `${userPass}_bad`,
+						productIndex: productA.productIndex,
+						quantity: 1
 					})
 					.end((err, res) => {
 						expect(res.status).equal(403)
 						done();
 					})
 			})
-		}) */
+		})
+
+		describe('Add an item to the cart for an non-existant productIndex', () => {
+			it('404', (done) => {
+				api.post('/api/v1/cart/add')
+					.set('Accept', 'application/json')
+					.set('Authorization', `bearer ${accessToken}`)
+					.send({
+						productIndex: productA.productIndex + 100000,
+						quantity: 1
+					})
+					.end((err, res) => {
+						expect(res.status).equal(404)
+						done();
+					})
+			})
+		})
+
+		describe('Add an item to the cart with body error', () => {
+			it('400', (done) => {
+				api.post('/api/v1/cart/add')
+					.set('Accept', 'application/json')
+					.set('Authorization', `bearer ${accessToken}`)
+					.send({
+						productIndex: productA.productIndex + 100000,
+						quantity: 'safds'
+					})
+					.end((err, res) => {
+						expect(res.status).equal(400)
+						done();
+					})
+			})
+		})
 
 	})
 }
