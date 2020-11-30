@@ -6,8 +6,18 @@ Developed with `node v12.19.0` and `mySQL 8.0.22`
 - Install all npm modules: `npm install` to install or node dependencies
 - Run server: `npm run start` to start server in dev mode
 - To run tests: `npm run test`
+- Sample mysql database can be found in the `resources` folder
 
-## API Endpoints:
+## API Reference:
+
+Server errors are returned as status code `500`. For request errors, the response body will contain an array with all applicable error messages.
+
+### Check that the api is responsive
+```
+curl --request GET \
+  --url http://127.0.0.1:8444/api/v1/ping \
+  --header 'content-type: applicatiion/json'
+```
 
 ### View store products
 
@@ -27,6 +37,7 @@ Certain defaults and max / min values may apply but are taken care of by the api
 curl --request GET \
   --url 'http://127.0.0.1:8444/api/v1/products?page=1&limit=2&priceFrom=10&priceTo=1000&search=&category=1'
  ```
+Returns `200 OK` if all good
 
 #### Response: `200 OK`
 
@@ -106,8 +117,23 @@ curl --request POST \
   "accessToken": "%ACCESS_TOKEN%",
   "sessionExpires": 1609350502
 }
+```
 
+### Add items to cart
 
+To add an item to the cart, the request body must specify the productIndex. If the quantity field is left out, it defaults to 1. If the quantity field has an invalid value, the request will fail.
+
+#### Request example
+curl --request POST \
+  --url 'http://127.0.0.1:8444/api/v1/cart/add?quantity=100' \
+  --header 'authorization: Bearer %ACCESS_TOKEN%' \
+  --header 'content-type: application/json' \
+  --data '{
+  "productIndex": 20,
+	"quantity": 1
+}'
+
+#### Response: `200 OK`
 
 
 
