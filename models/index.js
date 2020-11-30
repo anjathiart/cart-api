@@ -55,10 +55,23 @@ module.exports = (app) => {
 				'categoryName',
 			]
 		}),
+		items: sql.define({
+			schema: 'store-admin',
+			name: 'items',
+			columns: [
+				'itemIndex',
+				'productIndex',
+				'itemQuantity',
+				'userIndex',
+				'itemUpdated',
+				'cartStatus',
+			]
+		})
 	}
 
 	models.users = require('./users')(app, schema);
 	models.sessions = require('./sessions')(app, schema);
 	models.products = require('./products')(app, schema);
+	models.carts = require('./carts')(app, schema);
 	return models;
 };

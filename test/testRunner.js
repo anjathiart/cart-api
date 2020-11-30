@@ -35,4 +35,4 @@ describe('Ping the server', () => {
 });
 
 require('./test-specs/access.js')(app, api);
-
+require('./test-specs/cart.js')(app, api);

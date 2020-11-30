@@ -66,6 +66,34 @@ module.exports = (app, schema) => {
 			return rows[0].length > 0 ? rows[0] : [];
 		},
 
+		async getStockLevel(productIndex) {
+			let query = schema.products
+				.select(schema.products.productStockLevel).from(schema.products)
+				.where(schema.products.productIndex.equals(productIndex)).toQuery()
+
+			const rows = await app.db.query(query.text, query.values);
+			return rows[0].length > 0 ? rows[0][0].productStockLevel : null;
+		},
+
+		async adjustStockLevel(productIndex, adjustedValue) {
+
+			const query = await schema.products.update({productStockLevel: adjustedValue })
+				.where(schema.products.productIndex.equals(productIndex)).limit(1)
+				.toQuery();
+			const rows = await app.db.query(query.text, query.values);
+			return (rows[0].affectedRows > 0);
+		},
+
+		async release(productIndex, quantity) {
+
+			const stockLevel = await app.models.products.getStockLevel(productIndex);
+			const query = await schema.products.update({productStockLevel: stockLevel + quantity})
+				.where(schema.products.productIndex.equals(productIndex)).limit(1)
+				.toQuery();
+			const rows = await app.db.query(query.text, query.values);
+			return (rows[0].affectedRows > 0);
+		},
+
 	}
 	return model;
 }

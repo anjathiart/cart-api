@@ -80,7 +80,7 @@ module.exports = (app, api) => {
 						userPass,
 					})
 					.end((err, res) => {
-						app.config.testUser.accesstoken = res.body.accessToken;
+						app.config.testUser.accessToken = res.body.accessToken;
 						expect(res.status).equal(200)
 						done();
 					})
@@ -96,7 +96,7 @@ module.exports = (app, api) => {
 						userPass: `${userPass}_bad`,
 					})
 					.end((err, res) => {
-						expect(res.status).equal(403)
+						expect(res.status).equal(400)
 						done();
 					})
 			})

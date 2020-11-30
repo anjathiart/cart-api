@@ -68,7 +68,7 @@ module.exports = (app) => {
 				if (session.sessionIndex && Math.round(Date.now() / 1000) < session.sessionExpires) {
 					return {
 						scope: 'user',
-						userIndex: 0,
+						userIndex: session.userIndex,
 						userPriv: session.userPriv,
 						userType: session.userType,
 						userEmail: session.userEmail,

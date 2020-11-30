@@ -1,17 +1,23 @@
 module.exports = (app, koaRouter) => {
-	koaRouter.get('/api/v1/cart', async (ctx, next) => {
-		await app.check(ctx, next, {
-			description: 'Register a new user',
-			scope: ['user'],
+
+	koaRouter.post('/api/v1/cart/add', async (ctx, next) => {
+		await app.check(ctx, next, { 
+			description: 'Add a product to the cart',
+			body: {
+				productIndex: { required: true },
+				quantity: { default: 1 },
+			},
+			scope: ['user']
 		});
 	}, async (ctx) => {
-		if (ctx.session.userPriv === 0) {
-			ctx.status = 200;
+		const result = await app.controls.carts.addProducts(ctx.validInput, ctx.session.userIndex)
+		if (result.hasOwnProperty('errors')) {
+			ctx.status = result.status ? result.status : 400;
 			ctx.body = {
-				msg: 'TODO -> retreive cart for current user',			}
+				errors: result.errors,
+			}
 		} else {
-			ctx.status = 403;
+			ctx.status = 200;
 		}
-		
-	});
+	})
 }

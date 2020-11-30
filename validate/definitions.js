@@ -78,6 +78,11 @@ module.exports = Joi.object({
 		error.msg = 'inStock must either a valid boolean (true / false)';
 		throw error;
 	}),
+	quantity: Joi.number().integer().min(1).allow('').optional().error(errors => {
+		error = new Error;
+		error.msg = 'quantity must be a integer at least equal to 1';
+		throw error;
+	})
 
 
 });
