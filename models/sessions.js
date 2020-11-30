@@ -18,6 +18,7 @@ module.exports = (app, schema) => {
 					schema.users.userIndex,
 					schema.users.userEmail,
 					schema.users.userPriv,
+					schema.users.userType,
 				)
 				.from(schema.sessions.join(schema.users).on(schema.users.userIndex.equals(schema.sessions.userIndex)))
 				.where(schema.users.userPass.isNotNull())
@@ -33,6 +34,7 @@ module.exports = (app, schema) => {
 					userIndex: rows[0][0].userIndex,
 					userPriv: rows[0][0].userPriv,
 					userEmail:rows[0][0].userEmail,
+					userType: rows[0][0].userType,
 					accessToken,
 				}
 			} 
