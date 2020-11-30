@@ -20,19 +20,28 @@ module.exports = (app) => {
 
 			// Check that page requested is not out of range
 			page = page <= pageCount ? page : pageCount;
-
+			if (pageCount === 0) {
+				return {
+					page,
+					pageCount,
+					limit,
+					search,
+					data: []
+				}
+			}
 			const products = await app.models.products.fetch(page, limit, search, order, category, priceFrom, priceTo, inStock);
 			let result = [];
 			if (userType !== 'admin') {
 				result = products.map(product => {
 					product.productPrice = `${product.productPrice.toFixed(2)} ${product.productCurrency}`;
-					const { productIndex, productTitle, productPrice, categoryName, productDescription } = product;
+					const { productIndex, productTitle, productPrice, categoryName, categoryIndex, productDescription } = product;
 					return {
 						productIndex,
 						productTitle,
 						productPrice,
 						productDescription,
 						categoryName,
+						categoryIndex
 					}
 				});
 			} else {

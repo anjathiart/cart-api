@@ -3,12 +3,17 @@ const sql = require('sql');
 module.exports = (app, schema) => {
 
 	// helper function to build the matching intermediate query conditions for fetching products
-	const buildFetchQueryFurther = (query, search, priceFrom, priceTo, inStock) => {
-		// filter according to inStock filter param
+	const buildFetchQueryFurther = (query, search, category, priceFrom, priceTo, inStock) => {
+			// filter according to inStock filter param
 			if (inStock === true) {
 				query = query.where(schema.products.productStockLevel.gt(0));
 			} else if (inStock === false) {
 				query = query.where(schema.products.productStockLevel.equals(0));
+			}
+
+			// filter according to category
+			if (category !== undefined && category > 0) {
+				query = query.where(schema.products.categoryIndex.equals(category));
 			}
 
 			// filter according to price range
@@ -33,25 +38,25 @@ module.exports = (app, schema) => {
 
 	const model = {
 		async fetch(page, limit, search, order, category, priceFrom, priceTo, inStock) {
-
 			let query = schema.products
 				.select(
 					schema.products.star(),
 					schema.categories.categoryName,
+					schema.categories.categoryIndex
 				)
 				.from(schema.products.join(schema.categories).on(schema.categories.categoryIndex.equals(schema.products.categoryIndex)));
 
-			query = buildFetchQueryFurther(query, page, limit, search, order, category, priceFrom, priceTo, inStock);
+			query = buildFetchQueryFurther(query, search, category, priceFrom, priceTo, inStock);
 
 			// action pagination
 			query = query.limit(limit).offset((page * limit) - limit).toQuery();
-
+			console.log(query.text)
 			const rows = await app.db.query(query.text, query.values);
 			return rows[0].length > 0 ? rows[0] : [];
 
 		},
 
-		async fetchProductIndexArray(search, priceFrom, priceTo, inStock) {
+		async fetchProductIndexArray(search, category, priceFrom, priceTo, inStock) {
 			let query = schema.products
 				.select(
 					schema.products.star(),
@@ -59,7 +64,7 @@ module.exports = (app, schema) => {
 				)
 				.from(schema.products.join(schema.categories).on(schema.categories.categoryIndex.equals(schema.products.categoryIndex)));
 
-			query = buildFetchQueryFurther(query, search, priceFrom, priceTo, inStock);
+			query = buildFetchQueryFurther(query, search, category, priceFrom, priceTo, inStock);
 			query = query.toQuery();
 
 			const rows = await app.db.query(query.text, query.values);
