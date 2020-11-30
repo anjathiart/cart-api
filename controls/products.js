@@ -2,35 +2,53 @@
 
 module.exports = (app) => {
 	const control = {
-		async fetch({ page, pageLength, search, order, category, priceFrom, priceTo, inStock }, userType) {
-			const products = await app.models.products.fetch(page, pageLength, search, order, category, priceFrom, priceTo, inStock);
+		async fetch({ page, limit, search, order, category, priceFrom, priceTo, inStock }, userType) {
+			
+			// non admin types cannot query for out of stock items
+			if (userType !== 'admin') inStock = true;
+			
+			const productsIndexArray = await app.controls.products.fetchProductIndexArray(limit, search, category, priceFrom, priceTo, inStock)
+			
+			// calculate pagination parameters
+			const pageCount = Math.ceil(productsIndexArray.length / limit);
+			page = page <= pageCount ? page : 1;
+
+			const products = await app.models.products.fetch(page, limit, search, order, category, priceFrom, priceTo, inStock);
 
 			let result = [];
 			if (userType !== 'admin') {
 				result = products.map(product => {
-					product.productPrice = `${product.productPrice} ${product.productCurrency}`;
+					product.productPrice = `${product.productPrice.toFixed(2)} ${product.productCurrency}`;
+					const { productIndex, productTitle, productPrice, categoryName, productDescription } = product;
 					return {
 						productIndex,
 						productTitle,
 						productPrice,
-						categoryName
-					} = product;
+						productDescription,
+						categoryName,
+					}
 				});
 			} else {
 				result = products.map(product => {
-					product.productPrice = parseFloat(product.productPrice);
+					product.productPrice = parseFloat(product.productPrice, 0).toFixed(2);
 					return product;
 				});
 			}
 
-			// TODO: renamve pageLength to pageLimit or limit
 			return {
 				page,
-				pageLength,
+				pageCount,
+				limit,
 				search,
 				data: result
 			}
-		}
+		},
+		async fetchProductIndexArray(limit, search, category, priceFrom, priceTo, inStock) {
+
+			const productSkuArray = await app.models.products.fetchProductIndexArray(limit, search, category, priceFrom, priceTo, inStock);
+			return productSkuArray;
+
+		},
 
 	}
 
