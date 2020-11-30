@@ -7,14 +7,16 @@ module.exports = (app) => {
 			// non admin types cannot query for out of stock items
 			if (userType !== 'admin') inStock = true;
 			
-			const productsIndexArray = await app.controls.products.fetchProductIndexArray(limit, search, category, priceFrom, priceTo, inStock)
+			const productsIndexArray = await app.controls.products.fetchProductIndexArray(search, category, priceFrom, priceTo, inStock)
 			
 			// calculate pagination parameters
-			const pageCount = Math.ceil(productsIndexArray.length / limit);
+			const numProducts = productsIndexArray.length;
+			const mod = numProducts % limit;
+			const pageCount = mod > 0 ? (numProducts - mod) / limit + 1 : numProducts / limit;
+			if (mod > 0 && mod < limit && page === pageCount) limit = mod
+
 			page = page <= pageCount ? page : 1;
-
 			const products = await app.models.products.fetch(page, limit, search, order, category, priceFrom, priceTo, inStock);
-
 			let result = [];
 			if (userType !== 'admin') {
 				result = products.map(product => {
@@ -34,7 +36,6 @@ module.exports = (app) => {
 					return product;
 				});
 			}
-
 			return {
 				page,
 				pageCount,
@@ -43,10 +44,10 @@ module.exports = (app) => {
 				data: result
 			}
 		},
-		async fetchProductIndexArray(limit, search, category, priceFrom, priceTo, inStock) {
+		async fetchProductIndexArray(search, category, priceFrom, priceTo, inStock) {
 
-			const productSkuArray = await app.models.products.fetchProductIndexArray(limit, search, category, priceFrom, priceTo, inStock);
-			return productSkuArray;
+			const productIndexArray = await app.models.products.fetchProductIndexArray(search, category, priceFrom, priceTo, inStock);
+			return productIndexArray;
 
 		},
 

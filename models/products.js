@@ -11,7 +11,6 @@ module.exports = (app, schema) => {
 				)
 				.from(schema.products.join(schema.categories).on(schema.categories.categoryIndex.equals(schema.products.categoryIndex)));
 
-
 			// filter according to inStock filter param
 			if (inStock === true) {
 				query = query.where(schema.products.productStockLevel.gt(0));
@@ -44,13 +43,14 @@ module.exports = (app, schema) => {
 
 		},
 
-		async fetchProductIndexArray(limit, search, priceFrom, priceTo, inStock) {
+		async fetchProductIndexArray(search, priceFrom, priceTo, inStock) {
 
 			let query = schema.products
 				.select(
-					schema.products.productIndex,
+					schema.products.star(),
+					schema.categories.categoryName,
 				)
-				.from(schema.products.join(schema.categories).on(schema.categories.categoryIndex.equals(schema.products.categoryIndex)))
+				.from(schema.products.join(schema.categories).on(schema.categories.categoryIndex.equals(schema.products.categoryIndex)));
 
 			// filter according to inStock filter param
 			if (inStock === true) {
