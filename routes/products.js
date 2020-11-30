@@ -4,7 +4,7 @@ module.exports = (app, koaRouter) => {
 			description: 'Get list of all products',
 			query: {
 				page: { default: 1 },
-				pageLength: { default: 10 },
+				limit: { default: 10 },
 				search: { default: '' },
 				order: { default: '' },
 				category: { default: '' },
@@ -15,7 +15,6 @@ module.exports = (app, koaRouter) => {
 			scope: ['public'],
 		});
 	}, async (ctx) => {
-		// TODO: can add a userType flag from the ctx.session object so that the control knows what data should be returned
 		const result = await app.controls.products.fetch(ctx.validInput, ctx.session.userType);
 		if (result) {
 			ctx.status = 200;
