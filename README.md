@@ -5,8 +5,12 @@ Developed with `node v12.19.0` and `mySQL 8.0.22`
 ## Dev
 - Install all npm modules: `npm install` to install or node dependencies
 - Run server: `npm run start` to start server in dev mode
+- mysql table structure can be found in [MySQL dump](resources/store-admin_2020-12-01.sql)
+
+## Tests
 - To run tests: `npm run test`
-- Sample mysql database can be found in the `resources` folder
+- Test user and test product for the test-cases can be configured in the api .config file.
+- Sample product data can be found in the [MySQL dump](resources/store-admin_2020-12-01.sql)
 
 ## API Reference:
 
@@ -122,6 +126,26 @@ curl --request POST \
   "sessionIndex": 867,
   "accessToken": "%ACCESS_TOKEN%",
   "sessionExpires": 1609350502
+}
+```
+
+### Logout of current session (terminate session)
+
+`POST http://127.0.0.1:8444/api/v1/access/logout`
+
+#### Request example:
+```
+curl --request POST \
+  --url http://127.0.0.1:8444/api/v1/access/logout \
+  --header 'authorization: Bearer %ACCESS_TOKEN' \
+  --header 'content-type: application/json'
+```
+
+#### Response: `200 OK`
+
+```json
+{
+  "success": true
 }
 ```
 
@@ -242,6 +266,7 @@ Example of returned fields for a users cart
 ```
 
 ### Batch edit items in the cart
+
 `POST http://127.0.0.1:8444/api/v1/cart/edit`
 
 #### Request example
@@ -261,8 +286,7 @@ curl --request POST \
 			"quantity": 20
 		}
 	]
-}
-	'
+}'
 ```
 #### Response: `200 OK` or `207 Multi-Status`
 
@@ -279,3 +303,21 @@ In this example one of the items in the request batch could be processed and the
 }
 ```
 
+### Clear all items in cart
+`POST http://127.0.0.1:8444/api/v1/cart/clear`
+
+#### Request example
+```
+curl --request POST \
+  --url http://127.0.0.1:8444/api/v1/cart/clear \
+  --header 'authorization: Bearer %ACCESS_TOKEN%' \
+  --header 'content-type: application/json'
+```
+
+#### Response: `200 OK`
+Returned body if request was successful:
+```json
+{
+  "success": true
+}
+```
