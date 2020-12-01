@@ -93,7 +93,6 @@ module.exports = (app, api) => {
 					})
 					.end((err, res) => {
 						app.config.testUser.accessToken = res.body.accessToken;
-						console.log(app.config.testUser.accessToken)
 						expect(res.status).equal(200)
 						done();
 					})

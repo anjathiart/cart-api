@@ -28,7 +28,7 @@ module.exports = (app, koaRouter) => {
 		}
 	});
 
-	koaRouter.post('/api/v1/carts/product/:productIndex/remove', async (ctx, next) => {
+	koaRouter.post('/api/v1/cart/product/:productIndex/remove', async (ctx, next) => {
 		await app.check(ctx, next, { 
 			description: 'Remove a product from the user\'s cart',
 			params: {
@@ -57,7 +57,7 @@ module.exports = (app, koaRouter) => {
 		}
 	});
 
-	koaRouter.post('/api/v1/carts/item/:itemIndex/delete', async (ctx, next) => {
+	koaRouter.post('/api/v1/cart/item/:itemIndex/delete', async (ctx, next) => {
 		await app.check(ctx, next, { 
 			description: 'Delete a line item from the cart',
 			params: {
@@ -82,7 +82,7 @@ module.exports = (app, koaRouter) => {
 		}
 	});
 
-	koaRouter.post('/api/v1/carts/clear', async (ctx, next) => {
+	koaRouter.post('/api/v1/cart/clear', async (ctx, next) => {
 		await app.check(ctx, next, { 
 			description: 'Clear all items from the cart',
 			scope: ['user']
@@ -104,7 +104,7 @@ module.exports = (app, koaRouter) => {
 		}
 	});
 
-	koaRouter.post('/api/v1/carts/edit', async (ctx, next) => {
+	koaRouter.post('/api/v1/cart/edit', async (ctx, next) => {
 		await app.check(ctx, next, { 
 			description: 'Clear all items from the cart',
 			body: {
@@ -126,7 +126,7 @@ module.exports = (app, koaRouter) => {
 		}
 	});
 
-	koaRouter.post('/api/v1/carts/view', async (ctx, next) => {
+	koaRouter.post('/api/v1/cart/view', async (ctx, next) => {
 		await app.check(ctx, next, { 
 			description: 'Clear all items from the cart',
 			scope: ['user']
@@ -134,6 +134,7 @@ module.exports = (app, koaRouter) => {
 	}, async (ctx) => {
 		if (ctx.session.scope === 'user') {
 			const result = await app.controls.carts.fetchUserCart(ctx.session.userIndex);
+			ctx.body = result;
 			ctx.status = 200;
 		} else {
 			ctx.status = 403;

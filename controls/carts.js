@@ -138,7 +138,7 @@ module.exports = (app) => {
 
 							// adjust the stock level (i.e. 'reserve' the stock for the customer)
 							// NOTE: this is optimistic and still needs to be optimised for edge cases;  consider moving this into model query
-							const reserveResult = await app.models.products.adjustStockLevel(productIndex, stockLevel - quantityToBeAdded);
+							const reserveResult = await app.models.products.adjustStockLevel(item.productIndex, stockLevel - quantityToBeAdded);
 							if (!reserveResult) {
 								errors.push(`Either the item with index ${itemIndex} does not exist, or there is not enough stock`)
 							} else {
@@ -146,8 +146,8 @@ module.exports = (app) => {
 							}
 
 							if (result === false) {
-								stockLevel = await app.models.products.getStockLevel(productIndex);
-								await app.models.products.adjustStockLevel(productIndex, stockLevel + quantityToBeAdded);
+								stockLevel = await app.models.products.getStockLevel(item.productIndex);
+								await app.models.products.adjustStockLevel(item.productIndex, stockLevel + quantityToBeAdded);
 								errors.push(`Item ${item.itemIndex}'s quantity could not be updated to ${quantity}`);
 							} else {
 								successMessages.push(`Item  ${itemIndex}'s quantity successfully updated to ${quantity}`);
