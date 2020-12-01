@@ -48,6 +48,8 @@ module.exports = (app, schema) => {
 
 			query = buildFetchQueryFurther(query, search, categoryIndex, priceFrom, priceTo, inStock);
 
+			query = query.order(schema.products.productPrice)
+
 			// action pagination
 			query = query.limit(limit).offset((page * limit) - limit).toQuery();
 			const rows = await app.db.query(query.text, query.values);
