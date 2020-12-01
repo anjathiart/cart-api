@@ -106,8 +106,6 @@ module.exports = (app, api) => {
 					.set('Accept', 'application/json')
 					.set('Authorization', `bearer ${accessToken}`)
 					.end((err, res) => {
-						console.log('xx')
-						console.log(res.body)
 						expect(res.status).equal(404)
 						done();
 					})

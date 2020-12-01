@@ -8,15 +8,9 @@ module.exports = (app) => {
 			// attempt to 'reserve' the quantity requested
 			const reserveResult = await app.models.products.removeStock(productIndex, quantity)
 			if (reserveResult === false) {
-				return {
-					status: 404,
-					errors: [`Could not find product ${productIndex}`]
-				}
+				app.throw(404, `Could not find product ${productIndex}`);
 			} else if (reserveResult === 0) {
-				return {
-					status: 400,
-					errors: [`Not enough stock of this product`]
-				}
+				app.throw(400, `Not enough stock of this product`);
 			}
 
 			// Create a new cart item or add items
@@ -34,10 +28,7 @@ module.exports = (app) => {
 			// re-adjust the stock level (i.e. 'release' the stock)
 			if (!itemIndex) {
 				await app.models.products.addStock(productIndex, quantity)
-				return {
-					status: 500,
-					errors: ['This request could not be processed']
-				}
+				app.throw(500, 'This request could not be processed');
 			}
 
 			return { itemIndex };
@@ -50,24 +41,15 @@ module.exports = (app) => {
 			
 			// check that the item is in the cart and that it is possible to remove the desired quantity of the item
 			if (!item.hasOwnProperty('itemIndex')) {
-				return {
-					status: 404,
-					errors: [`The product could not be found in your cart`]
-				}
+				app.throw(404, `The product could not be found in your cart`)
 			} else if (item.itemQuantity < quantity) {
-				return {
-					status: 400,
-					errors: [`You only have ${item.Quantity} of this item in your cart.`]
-				}
+				app.throw(400, `You only have ${item.Quantity} of this item in your cart.`)
 			}
 
 			const result = await app.models.carts.reduceItemQuantity(item.itemIndex, quantity);
 
 			if (result === false) {
-				return {
-					status: 500,
-					errors: ['The request could not be processed']
-				}
+				app.throw(500, 'The request could not be processed')
 			} else {
 				// return the stock removed
 				await app.models.products.addStock(productIndex, quantity);
@@ -83,20 +65,14 @@ module.exports = (app) => {
 			const item = await app.models.carts.getItemByIndex({ itemIndex, userIndex, cartStatus: 'pending'});
 			// check that the item is in the cart and that it is possible to remove the desired quantity of the item
 			if (!item.hasOwnProperty('itemIndex')) {
-				return {
-					status: 404,
-					errors: [`The line item could not be found in your cart`]
-				}
+				app.throw(404,`The line item could not be found in your cart`)
 			}
 
 			// process the request
 			const result = await app.models.carts.deleteItem(item.itemIndex);
 
 			if (result === false) {
-				return {
-					status: 500,
-					errors: ['The request could not be processed']
-				}
+				app.throw(500, 'The request could not be processed')
 			}
 			// return the stock removed
 			await app.models.products.addStock(item.productIndex, item.itemQuantity);
@@ -121,16 +97,19 @@ module.exports = (app) => {
 						const reserveResult = await app.models.products.removeStock(item.productIndex, quantityToBeAdded);
 
 						if (reserveResult === false) {
-							errors.push(`Could not find product ${item.productIndex}`);
+							let msg = `Could not find product ${item.productIndex}`;
+							errors.push(msg);
 						} else if (reserveResult === 0) {
-							errors.push(`Not enough stock: item ${itemIndex} could not be updated`);
+							let msg = `Not enough stock: item ${itemIndex} could not be updated`
+							errors.push(msg);
 						} else {
 							result = await app.models.carts.increaseItemQuantity(itemIndex, quantityToBeAdded);
 							if (result === false) {
 								await app.models.products.addStock(item.productIndex, quantityToBeAdded);
-								errors.push(`Item ${item.itemIndex}'s quantity could not be updated to ${quantity}`);
+								let msg = `Item ${item.itemIndex}'s quantity could not be updated to ${quantity}`;
+								errors.push(msg);
 							} else {
-								successMessages.push(`Item  ${itemIndex}'s quantity successfully updated to ${quantity}`);
+								successMessages.push(`Item ${itemIndex}'s quantity successfully updated to ${quantity}`);
 							}
 						}
 
@@ -139,7 +118,8 @@ module.exports = (app) => {
 						result = await app.models.carts.reduceItemQuantity(item.itemIndex, quantityToBeRemoved);
 
 						if (result === false) {
-							errors.push(`Item  ${itemIndex}'s quantity could not be updated to ${quantity}`);
+							let msg = `Item  ${itemIndex}'s quantity could not be updated to ${quantity}`;
+							errors.push(msg);
 						} else {
 							// return the stock removed
 							await app.models.products.addStock(item.productIndex, quantityToBeRemoved);
@@ -149,7 +129,8 @@ module.exports = (app) => {
 						successMessages.push(`Item ${itemIndex}'s quantity successfully updated to ${quantity}`);
 					}
 				} else {
-					errors.push(`Item ${itemIndex} not found`);
+					let msg = `Item ${itemIndex} not found`;
+					errors.push(msg);
 				}
 			}
 
@@ -163,10 +144,7 @@ module.exports = (app) => {
 			
 			const result = await app.models.carts.clearByUserIndex({ userIndex, cartStatus: 'pending' });
 			if (result === false) {
-				return {
-					status: 404,
-					errors: ['No items to be cleared']
-				}
+				app.throw(404, 'No items to be cleared');
 			}
 			return result;
 		},

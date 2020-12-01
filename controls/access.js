@@ -11,7 +11,7 @@ module.exports = (app) => {
 			if (user.hasOwnProperty('userIndex')) {
 				app.throw(400, "User already exists on system");
 			}
-			// TODO: log useful info
+
 			const fields = {
 				userFullname,
 				userEmail,
