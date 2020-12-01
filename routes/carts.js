@@ -91,8 +91,9 @@ module.exports = (app, koaRouter) => {
 	}, async (ctx) => {
 		if (ctx.session.scope === 'user') {
 			const result = await app.controls.carts.clearByUserIndex(ctx.session.userIndex)
-			if (result.hasOwnProperty('errors')) {
-				ctx.status = result.status ? result.status : 400;
+			if (result.hasOwnProperty('errors') && result.status !== 404) {
+				// if no open cart items are found (404), then the status is still 200 in this case
+				ctx.status = result.status === 404 ? 200 : 400;
 				ctx.body = {
 					errors: result.errors,
 				}

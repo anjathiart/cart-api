@@ -32,6 +32,7 @@ module.exports = (app, api) => {
 					.set('Authorization', `bearer ${accessToken}`)
 					.end((err, res) => {
 						expect(res.status).equal(200)
+
 						done();
 					})
 			})
@@ -163,7 +164,7 @@ module.exports = (app, api) => {
 
 		describe('View cart with correct line item count and price', () => {
 			it('200', (done) => {
-				api.post(`/api/v1/cart/view`)
+				api.get(`/api/v1/cart/view`)
 					.set('Accept', 'application/json')
 					.set('Authorization', `bearer ${accessToken}`)
 					.end((err, res) => {
