@@ -3,7 +3,7 @@ const sql = require('sql');
 module.exports = (app, schema) => {
 
 	const model = {
-		async addProduct(productIndex, quantity, userIndex) {
+		/*async addProduct(productIndex, quantity, userIndex) {
 
 			let query = schema.products
 				.select(
@@ -18,11 +18,10 @@ module.exports = (app, schema) => {
 			query = query.limit(limit).offset((page * limit) - limit).toQuery();
 
 			const rows = await app.db.query(query.text, query.values);
-			console.log('x')
-			console.log(rows[0])
+			console.log('x'
 			return rows[0].length > 0 ? rows[0] : [];
 
-		},
+		},*/
 
 		async getItemByProductIndex({ productIndex, userIndex, cartStatus }) {
 			let query = schema.items.select(schema.items.star()).from(schema.items)
@@ -59,7 +58,6 @@ module.exports = (app, schema) => {
 
 			const query = schema.items.insert(fields).toQuery();
 			const rows = await app.db.query(query.text, query.values);
-			console.log(rows[0])
 			return rows[0].affectedRows > 0 ? rows[0].insertId : false;
 		},
 

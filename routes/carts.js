@@ -104,6 +104,42 @@ module.exports = (app, koaRouter) => {
 		}
 	});
 
+	koaRouter.post('/api/v1/carts/edit', async (ctx, next) => {
+		await app.check(ctx, next, { 
+			description: 'Clear all items from the cart',
+			body: {
+				editItems: { required: true }
+			},
+			scope: ['user']
+		});
+	}, async (ctx) => {
+		if (ctx.session.scope === 'user') {
+			const result = await app.controls.carts.editItems(ctx.validInput, ctx.session.userIndex);
+			ctx.body = result;
+			if (result.hasOwnProperty('errors')) {
+				ctx.status = result.hasOwnProperty('successMessages') ? 207 : 400;
+			} else {
+				ctx.status = 200;
+			}
+		} else {
+			ctx.status = 403;
+		}
+	});
 
+	koaRouter.post('/api/v1/carts/view', async (ctx, next) => {
+		await app.check(ctx, next, { 
+			description: 'Clear all items from the cart',
+			body: {
+				editItems: { required: true }
+			},
+			scope: ['user']
+		});
+	}, async (ctx) => {
+		if (ctx.session.scope === 'user') {
+			ctx.status = 200;
+		} else {
+			ctx.status = 403;
+		}
+	});
 
 }
