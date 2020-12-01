@@ -1,12 +1,12 @@
 module.exports = (app, koaRouter) => {
 
-	koaRouter.post('/api/v1/cart/:productIndex/add', async (ctx, next) => {
+	koaRouter.post('/api/v1/cart/product/:productIndex/add', async (ctx, next) => {
 		await app.check(ctx, next, { 
 			description: 'Add a product to the cart',
 			params: {
 				productIndex: { required: true },
 			},
-			query: {
+			body: {
 				quantity: { default: 1 },
 			},
 			scope: ['user']
@@ -28,13 +28,13 @@ module.exports = (app, koaRouter) => {
 		}
 	});
 
-	koaRouter.post('/api/v1/carts/:productIndex/remove', async (ctx, next) => {
+	koaRouter.post('/api/v1/carts/product/:productIndex/remove', async (ctx, next) => {
 		await app.check(ctx, next, { 
-			description: 'Add a product to the user\'s cart',
+			description: 'Remove a product from the user\'s cart',
 			params: {
 				productIndex: { required: true },
 			},
-			query: {
+			body: {
 				quantity: { default: 1 },
 			},
 			scope: ['user']
@@ -57,9 +57,9 @@ module.exports = (app, koaRouter) => {
 		}
 	});
 
-	koaRouter.post('/api/v1/carts/:itemIndex/delete', async (ctx, next) => {
+	koaRouter.post('/api/v1/carts/item/:itemIndex/delete', async (ctx, next) => {
 		await app.check(ctx, next, { 
-			description: 'Add a product to the cart',
+			description: 'Delete a line item from the cart',
 			params: {
 				itemIndex: { required: true },
 			},
@@ -134,7 +134,6 @@ module.exports = (app, koaRouter) => {
 	}, async (ctx) => {
 		if (ctx.session.scope === 'user') {
 			const result = await app.controls.carts.fetchUserCart(ctx.session.userIndex);
-			console.log(result);
 			ctx.status = 200;
 		} else {
 			ctx.status = 403;
