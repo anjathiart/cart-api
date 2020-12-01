@@ -82,7 +82,7 @@ module.exports = (app) => {
 				await app.models.products.adjustStockLevel(productIndex, stockLevel + quantity);
 
 			}
-			return result;
+			return { itemIndex: result };
 		},
 
 		async deleteItem({ itemIndex }, userIndex) {

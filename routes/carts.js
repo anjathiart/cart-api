@@ -40,7 +40,6 @@ module.exports = (app, koaRouter) => {
 			scope: ['user']
 		});
 	}, async (ctx) => {
-		console.log(ctx.session)
 		if (ctx.session.scope === 'user') {
 			const result = await app.controls.carts.removeProduct(ctx.validInput, ctx.session.userIndex)
 			if (result.hasOwnProperty('errors')) {
@@ -75,7 +74,9 @@ module.exports = (app, koaRouter) => {
 				}
 			} else {
 				ctx.status = 200;
-				ctx.body = result
+				ctx.body = {
+					success: true
+				}
 			}
 		} else {
 			ctx.status = 403;
@@ -97,7 +98,9 @@ module.exports = (app, koaRouter) => {
 				}
 			} else {
 				ctx.status = 200;
-				ctx.body = result
+				ctx.body = {
+					success: true
+				}
 			}
 		} else {
 			ctx.status = 403;
@@ -126,7 +129,7 @@ module.exports = (app, koaRouter) => {
 		}
 	});
 
-	koaRouter.post('/api/v1/cart/view', async (ctx, next) => {
+	koaRouter.get('/api/v1/cart/view', async (ctx, next) => {
 		await app.check(ctx, next, { 
 			description: 'Clear all items from the cart',
 			scope: ['user']
