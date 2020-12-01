@@ -97,6 +97,23 @@ module.exports = (app, schema) => {
 			return rows[0].length > 0 ? rows[0] : [];
 		},
 
+		async fetchUserCart({ userIndex, cartStatus }) {
+			console.log({userIndex})
+			let query = schema.items.
+				select(
+					schema.products.star(),
+					schema.items.star(),
+				)
+				.from(schema.items.join(schema.products).on(schema.products.productIndex.equals(schema.items.productIndex)))
+				.where(schema.items.userIndex.equals(userIndex).and(schema.items.cartStatus).equals(cartStatus))
+				.toQuery()
+
+			const rows = await app.db.query(query.text, query.values);
+			return rows[0].length > 0 ? rows[0]: [];
+				
+		}
+
 	}
+
 	return model;
 }

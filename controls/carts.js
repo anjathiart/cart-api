@@ -197,6 +197,37 @@ module.exports = (app) => {
 			}
 			return result;
 		},
+
+		async fetchUserCart(userIndex) {
+			const result = await app.models.carts.fetchUserCart({ userIndex, cartStatus: 'pending' });
+
+			const cartItems = result.map(item => {
+				const { itemIndex, itemQuantity, productIndex, productPrice, productCurrency, productTitle, productImageURL } = item;
+				return {
+					itemIndex,
+					productTitle,
+					productIndex,
+					productImageURL,
+					itemQuantity,
+					currency: productCurrency,
+					unitPrice: productPrice,
+					itemTotalPrice: parseFloat((productPrice * itemQuantity).toFixed(2)),
+				};
+			})
+
+			const cart = {
+				userIndex: userIndex,
+				totalItemsCount: cartItems.reduce((sum, currentItem) => {
+					return sum + currentItem.itemQuantity;
+				}, 0),
+				totalPrice: cartItems.reduce((sum, currentItem) => {
+					return sum + currentItem.itemTotalPrice;
+				}, 0),
+				timsestamp: Math.floor(new Date() / 1000),
+				data: cartItems,
+			}
+			return cart;
+		}
 	}
 	return control;
 }
