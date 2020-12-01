@@ -5,7 +5,7 @@ module.exports = (app, schema) => {
 		async selectUserByEmail(userEmail) {
 			// do an extra clean up of the userEmail
 			const email = (userEmail.indexOf('@') > 0) ? userEmail.toLowerCase().trim() : null;
-			// TODO: log something useful
+
 			let query = schema.users.select(schema.users.star()).from(schema.users);
 			if (email !== null) {
 				query = query.where(sql.functions.LOWER(schema.users.userEmail).equals(email)).toQuery();
@@ -18,7 +18,7 @@ module.exports = (app, schema) => {
 			
 		},
 		async select(userIndex) {
-			// TODO: log something useful
+		
 			let query = schema.users.select(schema.users.star()).from(schema.users);
 			if (userIndex !== null) {
 				query = query.where((schema.users.userIndex).equals(userIndex)).toQuery();
