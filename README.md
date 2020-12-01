@@ -5,13 +5,12 @@ Developed with `node v12.19.0` and `mySQL 8.0.22`
 ## Dev
 - Install all npm modules: `npm install` to install or node dependencies
 - Run server: `npm run start` to start server in dev mode
-- To run tests: `npm run test`
+- mysql table structure can be found in [MySQL dump](resources/store-admin_2020-12-01.sql)
 
 ## Tests
+- To run tests: `npm run test`
 - Test user and test product for the test-cases can be configured in the api .config file.
-- Sample mysql database can be found in the `resources` folder
-
-
+- Sample product data can be found in the [MySQL dump](resources/store-admin_2020-12-01.sql)
 
 ## API Reference:
 
