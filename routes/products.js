@@ -7,7 +7,7 @@ module.exports = (app, koaRouter) => {
 				limit: { default: 10 },
 				search: { default: '' },
 				order: { default: '' },
-				category: { default: '' },
+				categoryIndex: { default: '' },
 				priceFrom: { default: '' },
 				priceTo: { default: '' },
 				inStock: { default: '' },
