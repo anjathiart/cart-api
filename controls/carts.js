@@ -144,7 +144,11 @@ module.exports = (app) => {
 			
 			const result = await app.models.carts.clearByUserIndex({ userIndex, cartStatus: 'pending' });
 			if (result === false) {
-				app.throw(404, 'No items to be cleared');
+				// send error back to route because even 404 means that the model call was successful
+				return {
+					status: 404,
+					errors: ['No items to be cleared']
+				}
 			}
 			return result;
 		},
