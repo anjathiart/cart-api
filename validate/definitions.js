@@ -59,15 +59,15 @@ module.exports = Joi.object({
 	itemIndex: Joi.number().integer().min(1).error(errors => {
 		joiError('itemIndex must be a integer at least equal to 1')
 	}),
-	editItems: Joi.array().items(Joi.object({
+	editItems: Joi.array().min(1).items(Joi.object({
 		itemIndex: Joi.number().integer().min(1).required().error(errors => {
 			joiError('itemIndex must be a integer at least equal to 1')
 		}),
-		quantity: Joi.number().integer().min(1).allow('').required().error(errors => {
+		quantity: Joi.number().integer().min(1).required().error(errors => {
 			joiError('quantity must be a integer at least equal to 1')
 		}),
 	})).error(errors => {
-		joiError('editItems is invalid')
+		joiError('editItems must be an array of objects with at least 1 object')
 	}),
 });
 
