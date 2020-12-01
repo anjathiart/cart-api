@@ -75,7 +75,7 @@ module.exports = (app, koaRouter) => {
 
 	// include all route files
 	require('./access')(app, koaRouter);
-	require('./cart')(app, koaRouter);
+	require('./carts')(app, koaRouter);
 	require('./products')(app, koaRouter);
 
 }

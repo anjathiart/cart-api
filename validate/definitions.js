@@ -87,7 +87,18 @@ module.exports = Joi.object({
 		error = new Error;
 		error.msg = 'category must be a integer at least equal to 1';
 		throw error;
+	}),
+	productIndex: Joi.number().integer().min(1).error(errors => {
+		error = new Error;
+		error.msg = 'productIndex must be a integer at least equal to 1';
+		throw error;
+	}),
+	itemIndex: Joi.number().integer().min(1).error(errors => {
+		error = new Error;
+		error.msg = 'itemIndex must be a integer at least equal to 1';
+		throw error;
 	})
+
 
 });
 
