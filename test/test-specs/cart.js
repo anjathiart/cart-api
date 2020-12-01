@@ -29,7 +29,7 @@ module.exports = (app, api) => {
 
 		describe('Add an item to the cart with unknown quantity', () => {
 			it('200', (done) => {
-				api.post('/api/v1/cart/add')
+				api.post(`/api/v1/cart/${productA.productIndex}/add`)
 					.set('Accept', 'application/json')
 					.set('Authorization', `bearer ${accessToken}`)
 					.send({
@@ -44,13 +44,9 @@ module.exports = (app, api) => {
 
 		describe('Add an item to the cart with too large a quantity', () => {
 			it('400', (done) => {
-				api.post('/api/v1/cart/add')
+				api.post(`/api/v1/cart/${productA.productIndex}/add?quantity=100000`)
 					.set('Accept', 'application/json')
 					.set('Authorization', `bearer ${accessToken}`)
-					.send({
-						productIndex: productA.productIndex,
-						quantity: 1000000
-					})
 					.end((err, res) => {
 						expect(res.status).equal(400)
 						done();
@@ -60,12 +56,8 @@ module.exports = (app, api) => {
 
 		describe('Add an item to the cart for unauthorized user', () => {
 			it('403', (done) => {
-				api.post('/api/v1/cart/add')
+				api.post(`/api/v1/cart/${productA.productIndex}/add?quantity=1`)
 					.set('Accept', 'application/json')
-					.send({
-						productIndex: productA.productIndex,
-						quantity: 1
-					})
 					.end((err, res) => {
 						expect(res.status).equal(403)
 						done();
@@ -75,13 +67,9 @@ module.exports = (app, api) => {
 
 		describe('Add an item to the cart for an non-existant productIndex', () => {
 			it('404', (done) => {
-				api.post('/api/v1/cart/add')
+				api.post(`/api/v1/cart/50000000/add?quantity=1`)
 					.set('Accept', 'application/json')
 					.set('Authorization', `bearer ${accessToken}`)
-					.send({
-						productIndex: productA.productIndex + 100000,
-						quantity: 1
-					})
 					.end((err, res) => {
 						expect(res.status).equal(404)
 						done();
@@ -89,15 +77,11 @@ module.exports = (app, api) => {
 			})
 		})
 
-		describe('Add an item to the cart with body error', () => {
+		describe('Add an item to the cart with query error', () => {
 			it('400', (done) => {
-				api.post('/api/v1/cart/add')
+				api.post(`/api/v1/cart/${productA.productIndex}/add?quantity=sdfasf`)
 					.set('Accept', 'application/json')
 					.set('Authorization', `bearer ${accessToken}`)
-					.send({
-						productIndex: productA.productIndex + 100000,
-						quantity: 'safds'
-					})
 					.end((err, res) => {
 						expect(res.status).equal(400)
 						done();
