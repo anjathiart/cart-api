@@ -3,9 +3,11 @@ An API for a simple shopping cart application to allow users to interact with th
 Developed with `node v12.19.0` and `mySQL 8.0.22`
 
 ## Dev
+- NB: Setup config file to local specifications
 - Install all npm modules: `npm install` to install or node dependencies
 - Run server: `npm run start` to start server in dev mode
 - mysql table structure can be found in [MySQL dump](resources/store-admin_2020-12-01.sql)
+
 
 ## Tests
 - To run tests: `npm run test`
