@@ -3,11 +3,20 @@ const sql = require('sql');
 module.exports = (app, schema) => {
 	const model = {
 		async insert(fields) {
-
 			fields.sessionCreated = Math.floor(new Date() / 1000);
 			const query = schema.sessions.insert(fields).toQuery();
 			const rows = await app.db.query(query.text, query.values);
 			return rows[0].insertId > 0 ? rows[0].insertId : null;
+		},
+
+		async terminate(sessionIndex) {
+
+			const query = schema.sessions
+				.delete()
+				.where(schema.sessions.sessionIndex.equals(sessionIndex))
+				.toQuery();
+			const rows = await app.db.query(query.text, query.values);
+			return rows[0].affectedRows > 0;
 		},
 
 		async select(accessToken) {

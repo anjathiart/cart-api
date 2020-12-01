@@ -3,7 +3,7 @@ const expect = require('chai').expect;
 
 module.exports = (app, api) => {
 	const { userFullname, userEmail, userPass } = app.config.testUser;
-
+	let accessToken = '';
 	describe('Register user (customer) / Login / Logout', () => {
 		describe('Clear test user', () => {
 			it('200', (done) => {
@@ -29,7 +29,6 @@ module.exports = (app, api) => {
 						userPass,
 					})
 					.end((err, res) => {
-						app.config.testUser.userIndex = res.body.userIndex;
 						expect(res.status).equal(200)
 						done();
 					})
@@ -92,7 +91,7 @@ module.exports = (app, api) => {
 						userPass,
 					})
 					.end((err, res) => {
-						app.config.testUser.accessToken = res.body.accessToken;
+						accessToken = res.body.accessToken;
 						expect(res.status).equal(200)
 						done();
 					})
@@ -109,6 +108,18 @@ module.exports = (app, api) => {
 					})
 					.end((err, res) => {
 						expect(res.status).equal(400)
+						done();
+					})
+			})
+		})
+
+		describe('Terminate / Logout current session', () => {
+			it('200', (done) => {
+				api.post('/api/v1/access/logout')
+					.set('Accept', 'application/json')
+					.set('Authorization', `bearer ${accessToken}`)
+					.end((err, res) => {
+						expect(res.status).equal(200)
 						done();
 					})
 			})

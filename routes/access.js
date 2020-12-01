@@ -43,13 +43,22 @@ module.exports = (app, koaRouter) => {
 	koaRouter.post('/api/v1/access/logout', async (ctx, next) => {
 		await app.check(ctx, next, {
 			description: 'Logout current session',
-			body: {
-				sessionIndex: { required: true },
-				accessToken: { required: true },
-			},
 			scope: ['user'],
 		})
 	}, async (ctx) => {
+		if (ctx.session.scope === 'user' && ctx.session.hasOwnProperty('sessionIndex')) {
+			const result = await app.models.sessions.terminate(ctx.session.sessionIndex);
+			if (result == true) {
+				ctx.status = 200;
+				ctx.body = {
+					success: true
+				}
+			} else {
+				ctx.status = 500;
+			}
+		} else {
+			ctx.status = 403;
+		}
 		
 
 	});
