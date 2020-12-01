@@ -72,32 +72,29 @@ module.exports = (app, schema) => {
 			return rows[0].length > 0 ? rows[0] : [];
 		},
 
-		async getStockLevel(productIndex) {
-			let query = schema.products
-				.select(schema.products.productStockLevel).from(schema.products)
-				.where(schema.products.productIndex.equals(productIndex)).toQuery()
-
+		async addStock(productIndex, value) {
+			const query = {
+				text: `UPDATE \`store-admin\`.\`products\` SET \`productStockLevel\` = \`productStockLevel\` + ? WHERE \`productIndex\` = ?`,
+				values: [value, productIndex]
+			}
 			const rows = await app.db.query(query.text, query.values);
-			return rows[0].length > 0 ? rows[0][0].productStockLevel : null;
+			return rows[0].changedRows > 0;
 		},
 
-		async adjustStockLevel(productIndex, adjustedValue) {
+		async removeStock(productIndex, value) {
+			const query = {
+				text: `UPDATE \`store-admin\`.\`products\` SET \`productStockLevel\` = `,
+				values: []
+			}
 
-			const query = await schema.products.update({productStockLevel: adjustedValue })
-				.where(schema.products.productIndex.equals(productIndex)).limit(1)
-				.toQuery();
+			// add the condition to ensure stock level is maintained
+			query.text += `IF(\`productStockLevel\` - ? >= 0, \`productStockLevel\` - ?, \`productStockLevel\`)`;
+			// limit to productIndex
+			query.text += `WHERE \`productIndex\` = ?`;
+			query.values = [value, value, productIndex];
+
 			const rows = await app.db.query(query.text, query.values);
-			return (rows[0].affectedRows > 0);
-		},
-
-		async release(productIndex, quantity) {
-
-			const stockLevel = await app.models.products.getStockLevel(productIndex);
-			const query = await schema.products.update({productStockLevel: stockLevel + quantity})
-				.where(schema.products.productIndex.equals(productIndex)).limit(1)
-				.toQuery();
-			const rows = await app.db.query(query.text, query.values);
-			return (rows[0].affectedRows > 0);
+			return rows[0].affectedRows > 0 ? rows[0].changedRows : false
 		},
 
 	}

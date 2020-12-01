@@ -4,52 +4,45 @@ module.exports = (app) => {
 	const control = {
 
 		async addProduct({ productIndex, quantity }, userIndex) {
-			// check available stock level
-			const stockLevel = await app.models.products.getStockLevel(productIndex);
-			if (stockLevel === null) {
+
+			// attempt to 'reserve' the quantity requested
+			const reserveResult = await app.models.products.removeStock(productIndex, quantity)
+			if (reserveResult === false) {
 				return {
 					status: 404,
-					errors: ['The product could not be found or does not exist']
+					errors: [`Could not find product ${productIndex}`]
+				}
+			} else if (reserveResult === 0) {
+				return {
+					status: 400,
+					errors: [`Not enough stock of this product`]
 				}
 			}
-
-			if (stockLevel < quantity) {
-				return {
-					errors: [`Not enough stock: there are ${stockLevel} items in stock at this moment`]
-				}
-			}
-
-			// adjust the stock level (i.e. 'reserve' the stock for the customer)
-			// NOTE: this is optimistic and still needs to be optimised for edge cases;  consider moving this into model query
-			const reserveResult = await app.models.products.adjustStockLevel(productIndex, stockLevel - quantity);
-			if (!reserveResult) {
-				return {
-					status: 500,
-					errors: ['Either the product does not exist, or it went out of stock']
-				}
-			};
 
 			// Create a new cart item or add items
 			const item = await app.models.carts.getItemByProductIndex({productIndex, userIndex, cartStatus: 'pending' });
-			let result;
+			let itemIndex = '';
 			if (item.hasOwnProperty('itemIndex') && item.itemIndex > 0) {
-				result = await app.models.carts.updateItem(item.itemIndex, item.itemQuantity + quantity);
+				await app.models.carts.increaseItemQuantity(item.itemIndex, quantity)
+				.then(res => {
+					if(res) itemIndex = item.itemIndex;
+				});
 			} else {
-				result = await app.models.carts.insertItem(productIndex, quantity, userIndex);
+				itemIndex = await app.models.carts.insertItem(productIndex, quantity, userIndex);
 			}
 
 			// re-adjust the stock level (i.e. 'release' the stock)
-			// NOTE: this is optimistic and still needs to be optimised for edge cases; consider moving this into model query
-			if (result === false) {
-				stockLevel = await app.models.products.getStockLevel(productIndex);
-				await app.models.products.adjustStockLevel(productIndex, stockLevel + quantity);
+			if (!itemIndex) {
+				await app.models.products.addStock(productIndex, quantity)
 				return {
 					status: 500,
 					errors: ['This request could not be processed']
 				}
 			}
-			return { itemIndex: result };
+
+			return { itemIndex };
 		},
+
 
 		async removeProduct({ productIndex, quantity }, userIndex) {
 			// attemp to remove the product from the user's cart
@@ -68,8 +61,7 @@ module.exports = (app) => {
 				}
 			}
 
-			// process the request
-			const result = await app.models.carts.updateItem(item.itemIndex, item.itemQuantity - quantity);
+			const result = await app.models.carts.reduceItemQuantity(item.itemIndex, quantity);
 
 			if (result === false) {
 				return {
@@ -78,12 +70,13 @@ module.exports = (app) => {
 				}
 			} else {
 				// return the stock removed
-				stockLevel = await app.models.products.getStockLevel(productIndex);
-				await app.models.products.adjustStockLevel(productIndex, stockLevel + quantity);
-
+				await app.models.products.addStock(productIndex, quantity);
 			}
-			return { itemIndex: result };
+
+			return { itemIndex: item.itemIndex };
 		},
+
+
 
 		async deleteItem({ itemIndex }, userIndex) {
 			// attemp to remove the product from the user's cart
@@ -104,12 +97,10 @@ module.exports = (app) => {
 					status: 500,
 					errors: ['The request could not be processed']
 				}
-			} else {
-				// return the stock removed
-				stockLevel = await app.models.products.getStockLevel(item.productIndex);
-				await app.models.products.adjustStockLevel(item.productIndex, stockLevel + item.itemQuantity);
-
 			}
+			// return the stock removed
+			await app.models.products.addStock(item.productIndex, item.itemQuantity);
+
 			return result;
 		},
 
@@ -124,47 +115,34 @@ module.exports = (app) => {
 				if (item.hasOwnProperty('itemIndex')) {
 					if (item.itemQuantity < quantity) {
 						let result = false;
-						// addQuantity = quantity - itemQuantity
 						const quantityToBeAdded = quantity - item.itemQuantity;
-						// check stock levels, update with new quantity release stock levels if fails
+						
+						// attempt to 'reserve' the quantity requested
+						const reserveResult = await app.models.products.removeStock(item.productIndex, quantityToBeAdded);
 
-						const stockLevel = await app.models.products.getStockLevel(item.productIndex);
-						if (stockLevel === null) {
-							errors.push(`Item ${item.itemIndex} not found`);
-						}
-						if (stockLevel < quantityToBeAdded) {
+						if (reserveResult === false) {
+							errors.push(`Could not find product ${item.productIndex}`);
+						} else if (reserveResult === 0) {
 							errors.push(`Not enough stock: item ${itemIndex} could not be updated`);
 						} else {
-
-							// adjust the stock level (i.e. 'reserve' the stock for the customer)
-							// NOTE: this is optimistic and still needs to be optimised for edge cases;  consider moving this into model query
-							const reserveResult = await app.models.products.adjustStockLevel(item.productIndex, stockLevel - quantityToBeAdded);
-							if (!reserveResult) {
-								errors.push(`Either the item with index ${itemIndex} does not exist, or there is not enough stock`)
-							} else {
-								result = await app.models.carts.updateItem(itemIndex, quantity);
-							}
-
+							result = await app.models.carts.increaseItemQuantity(itemIndex, quantityToBeAdded);
 							if (result === false) {
-								stockLevel = await app.models.products.getStockLevel(item.productIndex);
-								await app.models.products.adjustStockLevel(item.productIndex, stockLevel + quantityToBeAdded);
+								await app.models.products.addStock(item.productIndex, quantityToBeAdded);
 								errors.push(`Item ${item.itemIndex}'s quantity could not be updated to ${quantity}`);
 							} else {
 								successMessages.push(`Item  ${itemIndex}'s quantity successfully updated to ${quantity}`);
 							}
-							
 						}
 
 					} else if (item.itemQuantity > quantity) {
-						const removeQuantity = item.itemQuantity - quantity;
-						result = await app.models.carts.updateItem(item.itemIndex, quantity);
+						const quantityToBeRemoved = item.itemQuantity - quantity;
+						result = await app.models.carts.reduceItemQuantity(item.itemIndex, quantityToBeRemoved);
 
 						if (result === false) {
 							errors.push(`Item  ${itemIndex}'s quantity could not be updated to ${quantity}`);
 						} else {
 							// return the stock removed
-							stockLevel = await app.models.products.getStockLevel(item.productIndex);
-							await app.models.products.adjustStockLevel(item.productIndex, stockLevel + removeQuantity);
+							await app.models.products.addStock(item.productIndex, quantityToBeRemoved);
 							successMessages.push(`Item ${itemIndex}'s quantity successfully updated to ${quantity}`);
 						}
 					} else {
@@ -176,13 +154,8 @@ module.exports = (app) => {
 			}
 
 			const returnObject = {};
-
-			if (errors.length > 0) {
-				returnObject.errors = errors;
-			}
-			if (successMessages.length > 0) {
-				returnObject.successMessages = successMessages
-			}
+			if (errors.length > 0) returnObject.errors = errors;
+			if (successMessages.length > 0) returnObject.successMessages = successMessages
 			return returnObject;
 		},
 
